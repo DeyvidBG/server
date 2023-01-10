@@ -29,7 +29,7 @@ class UserRepository<K, V extends Identifiable<K>>
 
   // Basic CRUD operations
 
-  async create(entityWithoutId: Omit<V, 'id'>): Promise<K> {
+  async create(entityWithoutId: Partial<V>): Promise<K> {
     return super.create(entityWithoutId, UserRepository.CREATE_QUERY)
   }
 
@@ -41,7 +41,7 @@ class UserRepository<K, V extends Identifiable<K>>
     return super.getById(id, UserRepository.GET_BY_ID)
   }
 
-  async update(entityWithOutId: V, id: K): Promise<boolean> {
+  async update(entityWithOutId: Partial<V>, id: K): Promise<boolean> {
     return super.update(entityWithOutId, id, UserRepository.UPDATE_QUERY)
   }
 

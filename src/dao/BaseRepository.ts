@@ -14,7 +14,7 @@ abstract class BaseRepository<K, V extends Identifiable<K>>
     super()
   }
 
-  async create(entityWithoutId: Omit<V, 'id'>, sqlQuery: string): Promise<K> {
+  async create(entityWithoutId: Partial<V>, sqlQuery: string): Promise<K> {
     return tryCatchWrapper(async () => {
       const result = await this.handleSQLQuery(
         sqlQuery,
@@ -37,10 +37,14 @@ abstract class BaseRepository<K, V extends Identifiable<K>>
     }, 'Error getting record.')
   }
 
-  async update(entity: V, id: K, sqlQuery: string): Promise<boolean> {
+  async update(
+    entityWithoutId: Partial<V>,
+    id: K,
+    sqlQuery: string
+  ): Promise<boolean> {
     return tryCatchWrapper(async () => {
       const result = await this.handleSQLQuery(sqlQuery, [
-        ...Object.values(entity),
+        ...Object.values(entityWithoutId),
         id,
       ])
       return result.affectedRows > 0

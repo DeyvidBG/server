@@ -24,7 +24,7 @@ class SchoolRepository<K, V extends Identifiable<K>>
     'UPDATE subjects SET name = ?, welcome_text = ?, principal_id = ?, vice_principal_id = ?, country = ?, city=?, zip_code=?, street_address = ?, website = ? WHERE id = ?'
   private static readonly DELETE_QUERY = 'DELETE FROM schools WHERE id = ?'
 
-  async create(entityWithoutId: Omit<V, 'id'>): Promise<K> {
+  async create(entityWithoutId: Partial<V>): Promise<K> {
     return super.create(entityWithoutId, SchoolRepository.CREATE_QUERY)
   }
 
@@ -36,7 +36,7 @@ class SchoolRepository<K, V extends Identifiable<K>>
     return super.getById(id, SchoolRepository.GET_BY_ID)
   }
 
-  async update(entityWithOutId: V, id: K): Promise<boolean> {
+  async update(entityWithOutId: Partial<V>, id: K): Promise<boolean> {
     return super.update(entityWithOutId, id, SchoolRepository.UPDATE_QUERY)
   }
 
