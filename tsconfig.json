@@ -4,7 +4,8 @@
     "module": "CommonJS",
     "outDir": "dist",
     "sourceMap": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/yup"]
   },
   "include": ["src/**/*.ts", "utils.ts"],
   "exclude": ["node_modules", ".vscode"]
