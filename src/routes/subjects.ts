@@ -1,20 +1,18 @@
 import express, { Request, Response } from 'express'
 import { tryCatchWrapper } from '../utils'
 import { Subject, IdType } from '../model'
-import { SubjectAPI } from '../api'
+import { SubjectRepository } from '../dao'
 import { subjectIdSchema, subjectSchema } from '../schema'
 import { validate } from '../middleware'
 
 const router = express.Router()
 
-const subjectAPI: SubjectAPI<IdType, Subject> = new SubjectAPI<
-  IdType,
-  Subject
->()
+const subjectRepository: SubjectRepository<IdType, Subject> =
+  new SubjectRepository<IdType, Subject>()
 
 router.get('/', (req: Request, res: Response) => {
   return tryCatchWrapper(async () => {
-    res.status(200).json(await subjectAPI.getAll())
+    res.status(200).json(await subjectRepository.getAll())
   }, 'Error getting subjects.')
 })
 
@@ -23,7 +21,9 @@ router.get(
   validate(subjectIdSchema),
   (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      res.status(200).json(await subjectAPI.getById(+req.params.subjectId))
+      res
+        .status(200)
+        .json(await subjectRepository.getById(+req.params.subjectId))
     }, 'Error getting subject.')
   }
 )
@@ -31,7 +31,7 @@ router.get(
 router.post('/', validate(subjectSchema), (req: Request, res: Response) => {
   return tryCatchWrapper(async () => {
     const data = req.body
-    const result = await subjectAPI.create({
+    const result = await subjectRepository.create({
       schoolId: data.schoolId,
       name: data.name,
       description: data.description,
@@ -49,7 +49,7 @@ router.put(
   validate(subjectSchema.concat(subjectIdSchema)),
   (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      const updated = await subjectAPI.update(
+      const updated = await subjectRepository.update(
         { ...req.body },
         +req.params.subjectId
       )
@@ -63,7 +63,7 @@ router.delete(
   validate(subjectIdSchema),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      const deleted = await subjectAPI.delete(+req.params.subjectId)
+      const deleted = await subjectRepository.delete(+req.params.subjectId)
       deleted ? res.status(204).end() : res.status(400).end()
     })
   }

@@ -1,17 +1,17 @@
 import { Identifiable } from '../model/shared-types'
-import { QueryExecutor } from './QueryExecutor'
-import { IAPI } from './shared-types'
+import { IRepository } from './shared-types'
 import { tryCatchWrapper } from '../utils'
-import { BaseAPI } from '.'
+import { BaseRepository } from '.'
 
-export interface IUserAPI<K, V extends Identifiable<K>> extends IAPI<K, V> {
+export interface IUserRepository<K, V extends Identifiable<K>>
+  extends IRepository<K, V> {
   getByEmail(email: Partial<V>): Promise<V>
   checkIfEmailExists(email: Partial<V>): Promise<boolean>
 }
 
-class UserAPI<K, V extends Identifiable<K>>
-  extends BaseAPI<K, V>
-  implements IUserAPI<K, V>
+class UserRepository<K, V extends Identifiable<K>>
+  extends BaseRepository<K, V>
+  implements IUserRepository<K, V>
 {
   constructor() {
     super()
@@ -30,23 +30,23 @@ class UserAPI<K, V extends Identifiable<K>>
   // Basic CRUD operations
 
   async create(entityWithoutId: Omit<V, 'id'>): Promise<K> {
-    return super.create(entityWithoutId, UserAPI.CREATE_QUERY)
+    return super.create(entityWithoutId, UserRepository.CREATE_QUERY)
   }
 
   async getAll(): Promise<V[]> {
-    return super.getAll(UserAPI.GET_ALL_QUERY)
+    return super.getAll(UserRepository.GET_ALL_QUERY)
   }
 
   async getById(id: K): Promise<V> {
-    return super.getById(id, UserAPI.GET_BY_ID)
+    return super.getById(id, UserRepository.GET_BY_ID)
   }
 
   async update(entityWithOutId: V, id: K): Promise<boolean> {
-    return super.update(entityWithOutId, id, UserAPI.UPDATE_QUERY)
+    return super.update(entityWithOutId, id, UserRepository.UPDATE_QUERY)
   }
 
   async delete(id: K): Promise<boolean> {
-    return super.delete(id, UserAPI.DELETE_QUERY)
+    return super.delete(id, UserRepository.DELETE_QUERY)
   }
 
   // Extended CRUD operations
@@ -72,4 +72,4 @@ class UserAPI<K, V extends Identifiable<K>>
   }
 }
 
-export default UserAPI
+export default UserRepository

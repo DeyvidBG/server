@@ -1,17 +1,20 @@
 import express, { Request, Response } from 'express'
 import { encryptPassword, tryCatchWrapper } from '../utils'
 import { User, IdType } from '../model'
-import { UserAPI } from '../api'
+import { UserRepository } from '../dao'
 import { userSchema, userIdSchema } from '../schema'
 import { validate } from '../middleware'
 
 const router = express.Router()
 
-const userAPI: UserAPI<IdType, User> = new UserAPI<IdType, User>()
+const userRepository: UserRepository<IdType, User> = new UserRepository<
+  IdType,
+  User
+>()
 
 router.get('/', async (req: Request, res: Response) => {
   return tryCatchWrapper(async () => {
-    res.status(200).json(await userAPI.getAll())
+    res.status(200).json(await userRepository.getAll())
   }, 'Error getting users.')
 })
 
@@ -20,7 +23,7 @@ router.get(
   validate(userIdSchema),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      res.status(200).json(await userAPI.getById(+req.params.userId))
+      res.status(200).json(await userRepository.getById(+req.params.userId))
     }, 'Error getting user.')
   }
 )
@@ -28,13 +31,15 @@ router.get(
 router.post('/', validate(userSchema), async (req: Request, res: Response) => {
   return tryCatchWrapper(async () => {
     const data = req.body
-    const emailAlreadyExists = await userAPI.checkIfEmailExists(data.email)
+    const emailAlreadyExists = await userRepository.checkIfEmailExists(
+      data.email
+    )
     if (emailAlreadyExists) {
       res.json({ code: 2, msg: 'Email is already registered!' })
       res.status(400).end()
     } else {
       const encryptedPassword = await encryptPassword(data.password)
-      await userAPI.create({
+      await userRepository.create({
         firstName: data.firstName,
         middleName: data.middleName,
         lastName: data.lastName,
@@ -55,7 +60,10 @@ router.put(
   validate(userSchema.concat(userIdSchema)),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      const updated = await userAPI.update({ ...req.body }, +req.params.userId)
+      const updated = await userRepository.update(
+        { ...req.body },
+        +req.params.userId
+      )
       updated ? res.status(204).end() : res.status(400).end()
     }, 'Error updating user.')
   }
@@ -66,7 +74,7 @@ router.delete(
   validate(userIdSchema),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
-      const deleted = await userAPI.delete(parseInt(req.params.userId))
+      const deleted = await userRepository.delete(parseInt(req.params.userId))
       deleted ? res.status(204).end() : res.status(400).end()
     }, 'Error deleting user.')
   }

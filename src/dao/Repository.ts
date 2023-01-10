@@ -1,13 +1,14 @@
 import { Identifiable } from '../model/shared-types'
 import { tryCatchWrapper } from '../utils'
 import { QueryExecutor } from './QueryExecutor'
-import { IAPI } from './shared-types'
+import { IRepository } from './shared-types'
 
-interface IBaseApi<K, V extends Identifiable<K>> extends IAPI<K, V> {}
+interface IBaseRepository<K, V extends Identifiable<K>>
+  extends IRepository<K, V> {}
 
-abstract class BaseAPI<K, V extends Identifiable<K>>
+abstract class BaseRepository<K, V extends Identifiable<K>>
   extends QueryExecutor<K, V>
-  implements IBaseApi<K, V>
+  implements IBaseRepository<K, V>
 {
   constructor() {
     super()
@@ -54,4 +55,4 @@ abstract class BaseAPI<K, V extends Identifiable<K>>
   }
 }
 
-export default BaseAPI
+export default BaseRepository
