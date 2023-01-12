@@ -1,4 +1,4 @@
-import { ForbiddenError } from './../model/errors'
+import { ForbiddenError } from '../model/errors'
 import { Request, Response, NextFunction } from 'express'
 import { IdType, User } from '../model'
 import { UserRepository } from '../dao'
@@ -8,7 +8,7 @@ const userRepository: UserRepository<IdType, User> = new UserRepository<
   User
 >()
 
-export default function verifyRole(roles) {
+const verifyRole = (roles) => {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
       const user = await userRepository.getById(res.locals.userId)
@@ -23,3 +23,5 @@ export default function verifyRole(roles) {
     }
   }
 }
+
+export default verifyRole
