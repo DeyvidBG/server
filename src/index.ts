@@ -2,7 +2,7 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import logger from 'morgan'
 import cors from 'cors'
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import { JwtPayload } from 'jsonwebtoken'
 import { users, subjects, auth } from './routes'
 import {
   AuthenticationError,
@@ -27,7 +27,7 @@ declare global {
 app.use(cors())
 app.use(bodyParser.json({ type: 'application/json' }))
 app.use(logger('dev'))
-app.use((err, req, res, next) => {
+app.use((err, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack)
   let status = 500
   if (err instanceof AuthenticationError) {

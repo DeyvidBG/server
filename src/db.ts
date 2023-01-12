@@ -1,6 +1,6 @@
 import mysql from 'mysql'
 import util from 'util'
-import db from '../config'
+import db from './config'
 
 const pool = mysql.createPool(db)
 

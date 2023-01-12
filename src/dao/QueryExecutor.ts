@@ -1,4 +1,4 @@
-import pool from './db'
+import pool from '../db'
 import { Identifiable } from '../model/shared-types'
 import { tryCatchWrapper } from '../utils'
 
