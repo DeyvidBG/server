@@ -19,18 +19,14 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
   const token = segments[1].trim()
 
-  jwt.verify(
-    token,
-    process.env.ACCESS_TOKEN_SECRET,
-    function (error, decoded: User) {
-      if (error)
-        next({ status: 403, message: `Failed to authenticate token.`, error })
-      else {
-        res.locals.user = decoded
-        next()
-      }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded: User) => {
+    if (error)
+      next({ status: 403, message: `Failed to authenticate token.`, error })
+    else {
+      res.locals.user = decoded
+      next()
     }
-  )
+  })
 }
 
 export default verifyToken

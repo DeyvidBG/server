@@ -11,7 +11,7 @@ const userRepository: UserRepository<IdType, User> = new UserRepository<
 const verifyRole = (roles) => {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await userRepository.getById(res.locals.userId)
+      const user = await userRepository.getByEmail(res.locals.user.email)
       if (!roles.includes(user.role)) {
         next(new ForbiddenError(`Access not allowed`))
         return

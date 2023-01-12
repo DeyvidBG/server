@@ -4,7 +4,7 @@ import { validate } from '../middleware'
 import { IdType, User } from '../model'
 import { userSchema, userSignInSchema } from '../schema'
 import { checkPassword, encryptPassword, tryCatchWrapper } from '../utils'
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { verifyToken } from '../security'
 
 const router = express.Router()

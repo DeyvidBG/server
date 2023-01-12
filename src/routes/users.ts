@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express'
 import { encryptPassword, tryCatchWrapper } from '../utils'
-import { User, IdType } from '../model'
+import { User, IdType, Role } from '../model'
 import { UserRepository } from '../dao'
 import { userSchema, userIdSchema } from '../schema'
 import { validate } from '../middleware'
+import verifyToken from './../security/verifyToken'
+import { verifyRole } from '../security'
 
 const router = express.Router()
 
@@ -12,11 +14,16 @@ const userRepository: UserRepository<IdType, User> = new UserRepository<
   User
 >()
 
-router.get('/', async (req: Request, res: Response) => {
-  return tryCatchWrapper(async () => {
-    res.status(200).json(await userRepository.getAll())
-  }, 'Error getting users.')
-})
+router.get(
+  '/',
+  verifyToken,
+  verifyRole([Role.Admin]),
+  async (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      res.status(200).json(await userRepository.getAll())
+    }, 'Error getting users.')
+  }
+)
 
 router.get(
   '/:userId',
