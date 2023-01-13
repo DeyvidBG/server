@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 import { encryptPassword, tryCatchWrapper } from '../utils'
 import { User, IdType, Role } from '../model'
 import { UserRepository } from '../dao'
-import { userSchema, userIdSchema } from '../schema'
+import { userSchema, userIdSchemaParams, userIdSchemaBody } from '../schema'
 import { validate } from '../middleware'
 import verifyToken from './../security/verifyToken'
 import { verifyRole } from '../security'
@@ -27,7 +27,7 @@ router.get(
 
 router.get(
   '/:userId',
-  validate(userIdSchema),
+  validate(userIdSchemaParams),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
       res.status(200).json(await userRepository.getById(+req.params.userId))
@@ -63,8 +63,40 @@ router.post('/', validate(userSchema), async (req: Request, res: Response) => {
 })
 
 router.put(
+  '/makeAdmin',
+  verifyToken,
+  verifyRole([Role.Admin]),
+  validate(userIdSchemaBody),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const updated = await userRepository.updateUsersRole(
+        req.body.userId,
+        Role.Admin
+      )
+      updated ? res.status(204).end() : res.status(400).end()
+    }, 'Error updating users role.')
+  }
+)
+
+router.put(
+  '/makeUser',
+  verifyToken,
+  verifyRole([Role.Admin]),
+  validate(userIdSchemaBody),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const updated = await userRepository.updateUsersRole(
+        req.body.userId,
+        Role.User
+      )
+      updated ? res.status(204).end() : res.status(400).end()
+    }, 'Error updating users role.')
+  }
+)
+
+router.put(
   '/:userId',
-  validate(userSchema.concat(userIdSchema)),
+  validate(userSchema.concat(userIdSchemaParams)),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
       const updated = await userRepository.update(
@@ -78,7 +110,9 @@ router.put(
 
 router.delete(
   '/:userId',
-  validate(userIdSchema),
+  verifyToken,
+  verifyRole([Role.Admin]),
+  validate(userIdSchemaParams),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
       const deleted = await userRepository.delete(parseInt(req.params.userId))

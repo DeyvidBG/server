@@ -50,7 +50,7 @@ router.post(
 )
 
 router.post(
-  '/singup',
+  '/signup',
   validate(userSchema),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {

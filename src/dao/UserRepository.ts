@@ -1,4 +1,4 @@
-import { Identifiable } from '../model/shared-types'
+import { Identifiable, Role } from '../model/shared-types'
 import { IRepository } from './shared-types'
 import { tryCatchWrapper } from '../utils'
 import { BaseRepository } from '.'
@@ -7,6 +7,7 @@ export interface IUserRepository<K, V extends Identifiable<K>>
   extends IRepository<K, V> {
   getByEmail(email: Partial<V>): Promise<V>
   checkIfEmailExists(email: Partial<V>): Promise<boolean>
+  updateUsersRole(id: K, role: Role): Promise<boolean>
 }
 
 class UserRepository<K, V extends Identifiable<K>>
@@ -20,9 +21,9 @@ class UserRepository<K, V extends Identifiable<K>>
   private static readonly CREATE_QUERY =
     'INSERT INTO users (first_name, middle_name, last_name, email, password, phone_number, birth_date, gender, role) VALUES (?,?,?,?,?,?,?,?,?)'
   private static readonly GET_ALL_QUERY =
-    'SELECT first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users'
+    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users'
   private static readonly GET_BY_ID =
-    'SELECT first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE id = ?'
+    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE id = ?'
   private static readonly UPDATE_QUERY =
     'UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, email = ?, password = ?, phone_number = ?, birth_date = ?, gender = ?, role = ? WHERE id = ?'
   private static readonly DELETE_QUERY = 'DELETE FROM users WHERE id = ?'
@@ -54,7 +55,7 @@ class UserRepository<K, V extends Identifiable<K>>
   async getByEmail(email: Partial<V>): Promise<V> {
     return tryCatchWrapper<V>(async () => {
       const result = await this.handleSQLQuery(
-        'SELECT first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE email = ?',
+        'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE email = ?',
         [email]
       )
       return result[0]
@@ -69,6 +70,16 @@ class UserRepository<K, V extends Identifiable<K>>
       )
       return result.length > 0
     }, 'Error checking whether email exists or does not.')
+  }
+
+  async updateUsersRole(id: K, role: Role): Promise<boolean> {
+    return tryCatchWrapper<boolean>(async () => {
+      const result = await this.handleSQLQuery(
+        'UPDATE users SET role = ? WHERE id = ?',
+        [role, id]
+      )
+      return result.affectedRows > 0
+    }, 'Error updating users role.')
   }
 }
 

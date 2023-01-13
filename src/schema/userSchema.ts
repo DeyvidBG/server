@@ -87,7 +87,7 @@ const userSignInSchema = yup.object({
   }),
 })
 
-const userIdSchema = yup.object({
+const userIdSchemaParams = yup.object({
   params: yup.object({
     userId: yup
       .string()
@@ -102,4 +102,19 @@ const userIdSchema = yup.object({
   }),
 })
 
-export { userSchema, userSignInSchema, userIdSchema }
+const userIdSchemaBody = yup.object({
+  body: yup.object({
+    userId: yup
+      .string()
+      .test(
+        'Is it a digit?',
+        'The id should contain only digits.',
+        (value, context) => {
+          return /^\d+$/.test(value)
+        }
+      )
+      .required(),
+  }),
+})
+
+export { userSchema, userSignInSchema, userIdSchemaParams, userIdSchemaBody }

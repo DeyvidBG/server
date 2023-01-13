@@ -1,10 +1,16 @@
-import { userSchema, userSignInSchema, userIdSchema } from './userSchema'
+import {
+  userSchema,
+  userSignInSchema,
+  userIdSchemaParams,
+  userIdSchemaBody,
+} from './userSchema'
 import { subjectSchema, subjectIdSchema } from './subjectSchema'
 
 export {
   userSchema,
   userSignInSchema,
-  userIdSchema,
+  userIdSchemaParams,
+  userIdSchemaBody,
   subjectSchema,
   subjectIdSchema,
 }
