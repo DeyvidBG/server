@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import logger from 'morgan'
 import cors from 'cors'
 import { JwtPayload } from 'jsonwebtoken'
-import { users, subjects, auth } from './routes'
+import { users, subjects, schools, auth } from './routes'
 import {
   AuthenticationError,
   ForbiddenError,
@@ -51,6 +51,7 @@ app.use((err, req: Request, res: Response, next: NextFunction) => {
 // All routes with user
 app.use('/users', users)
 app.use('/subjects', subjects)
+app.use('/schools', schools)
 app.use('/auth', auth)
 
 app.listen(PORT, () => {

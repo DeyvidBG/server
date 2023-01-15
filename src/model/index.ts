@@ -1,6 +1,6 @@
 import User from './user'
 import Subject from './subject'
-import School from './school'
+import { School } from './school'
 import { Identifiable, IdType, Time, Gender, Role } from './shared-types'
 import {
   AuthenticationError,

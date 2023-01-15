@@ -5,6 +5,7 @@ import {
   userIdSchemaBody,
 } from './userSchema'
 import { subjectSchema, subjectIdSchema } from './subjectSchema'
+import { schoolSchema } from './schoolSchema'
 
 export {
   userSchema,
@@ -13,4 +14,5 @@ export {
   userIdSchemaBody,
   subjectSchema,
   subjectIdSchema,
+  schoolSchema,
 }

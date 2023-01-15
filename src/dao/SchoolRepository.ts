@@ -4,7 +4,9 @@ import { tryCatchWrapper } from '../utils'
 import { BaseRepository } from '.'
 
 export interface ISchoolRepository<K, V extends Identifiable<K>>
-  extends IRepository<K, V> {}
+  extends IRepository<K, V> {
+  getAllUnverified(): Promise<V[]>
+}
 
 class SchoolRepository<K, V extends Identifiable<K>>
   extends BaseRepository<K, V>
@@ -15,7 +17,7 @@ class SchoolRepository<K, V extends Identifiable<K>>
   }
 
   private static readonly CREATE_QUERY =
-    'INSERT INTO schools (id, name, welcome_text, country, city, zip_code, street_address, website) VALUES (?,?,?,?,?,?,?)'
+    'INSERT INTO schools (name, welcome_text, principal_id, vice_principal_id, country, city, zip_code, street_address, website, is_verified) VALUES (?,?,?,?,?,?,?,?,?,0)'
   private static readonly GET_ALL_QUERY =
     'SELECT id, name, welcome_text AS welcomeText, principal_id AS principalId, vice_principal_id AS vicePrincipalId, country, city, zip_code as zipCode, street_address AS streetAddress, website FROM schools'
   private static readonly GET_BY_ID =
@@ -42,6 +44,17 @@ class SchoolRepository<K, V extends Identifiable<K>>
 
   async delete(id: K): Promise<boolean> {
     return super.delete(id, SchoolRepository.DELETE_QUERY)
+  }
+
+  // Extended CRUD
+
+  async getAllUnverified(): Promise<V[]> {
+    return tryCatchWrapper<V[]>(async () => {
+      const results = await this.handleSQLQuery(
+        'SELECT * FROM schools WHERE is_verified = 0'
+      )
+      return results
+    }, 'Error getting unverified schools.')
   }
 }
 
