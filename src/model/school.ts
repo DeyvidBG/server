@@ -1,6 +1,6 @@
 import { IdType } from './shared-types'
 
-export class School {
+class School {
   constructor(
     public id: IdType,
     public name: string,
@@ -13,3 +13,5 @@ export class School {
     public streetAddress: string
   ) {}
 }
+
+export default School

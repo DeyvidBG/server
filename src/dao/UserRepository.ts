@@ -21,9 +21,9 @@ class UserRepository<K, V extends Identifiable<K>>
   private static readonly CREATE_QUERY =
     'INSERT INTO users (first_name, middle_name, last_name, email, password, phone_number, birth_date, gender, role) VALUES (?,?,?,?,?,?,?,?,?)'
   private static readonly GET_ALL_QUERY =
-    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users'
+    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, DATE_FORMAT(birth_date, "%Y-%m-%d") birthDate, gender, role FROM users'
   private static readonly GET_BY_ID =
-    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE id = ?'
+    'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, DATE_FORMAT(birth_date, "%Y-%m-%d") AS birthDate, gender, role FROM users WHERE id = ?'
   private static readonly UPDATE_QUERY =
     'UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, email = ?, password = ?, phone_number = ?, birth_date = ?, gender = ?, role = ? WHERE id = ?'
   private static readonly DELETE_QUERY = 'DELETE FROM users WHERE id = ?'

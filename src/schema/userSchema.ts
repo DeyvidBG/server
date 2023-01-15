@@ -49,6 +49,8 @@ const userSchema = yup.object({
       .date()
       .typeError('Please provide a valid date!')
       .required('This field is required!'),
+    gender: yup.number().typeError('Fuck 1'),
+    role: yup.number().typeError('Fuck 2'),
   }),
 })
 

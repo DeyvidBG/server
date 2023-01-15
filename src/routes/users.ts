@@ -4,8 +4,7 @@ import { User, IdType, Role } from '../model'
 import { UserRepository } from '../dao'
 import { userSchema, userIdSchemaParams, userIdSchemaBody } from '../schema'
 import { validate } from '../middleware'
-import verifyToken from './../security/verifyToken'
-import { verifyRole } from '../security'
+import { verifyToken, verifyRole } from '../security'
 
 const router = express.Router()
 
@@ -69,8 +68,9 @@ router.put(
   validate(userIdSchemaBody),
   (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
+      const data = req.body
       const updated = await userRepository.updateUsersRole(
-        req.body.userId,
+        data.userId,
         Role.Admin
       )
       updated ? res.status(204).end() : res.status(400).end()
@@ -96,14 +96,29 @@ router.put(
 
 router.put(
   '/:userId',
+  verifyToken,
   validate(userSchema.concat(userIdSchemaParams)),
   async (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
+      const data = req.body
+      const encryptedPassword = await encryptPassword(data.password)
       const updated = await userRepository.update(
-        { ...req.body },
+        {
+          firstName: data.firstName,
+          middleName: data.middleName,
+          lastName: data.lastName,
+          email: data.email,
+          password: encryptedPassword,
+          phoneNumber: data.phoneNumber,
+          birthDate: new Date(data.birthDate),
+          gender: data.gender,
+          role: data.role,
+        },
         +req.params.userId
       )
-      updated ? res.status(204).end() : res.status(400).end()
+      updated
+        ? res.status(204).json({ msg: 'Successful!' }).end()
+        : res.status(400).json({ msg: 'Unsuccessful!' }).end()
     }, 'Error updating user.')
   }
 )
