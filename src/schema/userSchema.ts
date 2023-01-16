@@ -119,4 +119,20 @@ const userIdSchemaBody = yup.object({
   }),
 })
 
-export { userSchema, userSignInSchema, userIdSchemaParams, userIdSchemaBody }
+const userEmailSchema = yup.object({
+  body: yup.object({
+    email: yup
+      .string()
+      .email()
+      .max(50, 'Email too long.')
+      .required('This field is required!'),
+  }),
+})
+
+export {
+  userSchema,
+  userSignInSchema,
+  userIdSchemaParams,
+  userIdSchemaBody,
+  userEmailSchema,
+}

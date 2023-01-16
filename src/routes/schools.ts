@@ -24,6 +24,20 @@ router.get('/', (req: Request, res: Response) => {
 })
 
 router.get(
+  '/verified',
+  verifyToken,
+  verifyRole([Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      res
+        .status(200)
+        .json(await schoolRepository.getAllVerified())
+        .end()
+    })
+  }
+)
+
+router.get(
   '/unverified',
   verifyToken,
   verifyRole([Role.Admin]),
@@ -33,6 +47,22 @@ router.get(
         .status(200)
         .json(await schoolRepository.getAllUnverified())
         .end()
+    })
+  }
+)
+
+router.get(
+  '/teacher/:teacherEmail',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const params = req.params
+      const teacherStatus = await schoolRepository.getTeacherStatus(
+        params.teacherEmail,
+        res.locals.user.id
+      )
+      res.status(200).json(teacherStatus)
     })
   }
 )
@@ -84,5 +114,17 @@ router.post('/', validate(schoolSchema), (req: Request, res: Response) => {
     }
   }, 'Error creating school.')
 })
+
+router.put(
+  '/verify',
+  verifyToken,
+  verifyRole([Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const updated = await schoolRepository.verifySchool(req.body.schoolId)
+      updated ? res.status(204).end() : res.status(400).end()
+    }, 'Error updating school.')
+  }
+)
 
 export default router

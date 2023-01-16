@@ -1,20 +1,27 @@
 import express, { Request, Response } from 'express'
 import { tryCatchWrapper } from '../utils'
-import { Subject, IdType } from '../model'
+import { Subject, IdType, Role } from '../model'
 import { SubjectRepository } from '../dao'
 import { subjectIdSchema, subjectSchema } from '../schema'
 import { validate } from '../middleware'
+import verifyToken from './../security/verifyToken'
+import verifyRole from './../security/verifyRole'
 
 const router = express.Router()
 
 const subjectRepository: SubjectRepository<IdType, Subject> =
   new SubjectRepository<IdType, Subject>()
 
-router.get('/', (req: Request, res: Response) => {
-  return tryCatchWrapper(async () => {
-    res.status(200).json(await subjectRepository.getAll())
-  }, 'Error getting subjects.')
-})
+router.get(
+  '/',
+  verifyToken,
+  verifyRole([Role.Teacher, Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      res.status(200).json(await subjectRepository.getAll())
+    }, 'Error getting subjects.')
+  }
+)
 
 router.get(
   '/:subjectId',

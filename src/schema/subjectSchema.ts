@@ -13,7 +13,7 @@ const subjectSchema = yup.object({
       )
       .required(),
     name: yup.string().max(50, 'Name is too long.').required(),
-    description: yup.string().max(100, 'Description is too long.').required(),
+    description: yup.string().max(1000, 'Description is too long.').required(),
   }),
 })
 

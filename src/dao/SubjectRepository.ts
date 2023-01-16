@@ -17,7 +17,7 @@ class SubjectRepository<K, V extends Identifiable<K>>
   private static readonly CREATE_QUERY =
     'INSERT INTO subjects (school_id, name, description) VALUES (?,?,?)'
   private static readonly GET_ALL_QUERY =
-    'SELECT school_id AS schoolId, name, description FROM subjects'
+    'SELECT schools.name AS schoolName, subjects.id, subjects.name, subjects.description FROM subjects LEFT JOIN schools ON subjects.school_id = schools.id'
   private static readonly GET_BY_ID =
     'SELECT school_id AS schoolId, name, description FROM subjects WHERE id = ?'
   private static readonly UPDATE_QUERY =

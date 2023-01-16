@@ -2,7 +2,12 @@ import express, { Request, Response } from 'express'
 import { encryptPassword, tryCatchWrapper } from '../utils'
 import { User, IdType, Role } from '../model'
 import { UserRepository } from '../dao'
-import { userSchema, userIdSchemaParams, userIdSchemaBody } from '../schema'
+import {
+  userSchema,
+  userIdSchemaParams,
+  userIdSchemaBody,
+  userEmailSchema,
+} from '../schema'
 import { validate } from '../middleware'
 import { verifyToken, verifyRole } from '../security'
 
@@ -61,8 +66,21 @@ router.post('/', validate(userSchema), async (req: Request, res: Response) => {
   }, 'Error creating an account.')
 })
 
+router.post(
+  '/byEmail',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  validate(userEmailSchema),
+  async (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const data = req.body
+      res.status(200).json(await userRepository.getByEmail(data.email))
+    }, 'Error getting user by email.')
+  }
+)
+
 router.put(
-  '/makeAdmin',
+  '/admin',
   verifyToken,
   verifyRole([Role.Admin]),
   validate(userIdSchemaBody),
@@ -79,7 +97,7 @@ router.put(
 )
 
 router.put(
-  '/makeUser',
+  '/user',
   verifyToken,
   verifyRole([Role.Admin]),
   validate(userIdSchemaBody),
