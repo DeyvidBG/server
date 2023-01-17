@@ -2,12 +2,12 @@ import BaseRepository from './BaseRepository'
 import UserRepository from './UserRepository'
 import SubjectRepository from './SubjectRepository'
 import SchoolRepository from './SchoolRepository'
-import ClassRepository from './ClassRepository'
+import GroupRepository from './GroupRepository'
 
 export {
   BaseRepository,
   UserRepository,
   SubjectRepository,
   SchoolRepository,
-  ClassRepository,
+  GroupRepository,
 }

@@ -8,6 +8,7 @@ import {
 import { subjectSchema, subjectIdSchema } from './subjectSchema'
 import { schoolSchema } from './schoolSchema'
 import { roomSchema, roomIdSchema } from './roomSchema'
+import { addGroupSchema, teacherIdSchema, groupIdSchema } from './groupSchema'
 
 export {
   userSchema,
@@ -20,4 +21,7 @@ export {
   schoolSchema,
   roomSchema,
   roomIdSchema,
+  addGroupSchema,
+  teacherIdSchema,
+  groupIdSchema,
 }

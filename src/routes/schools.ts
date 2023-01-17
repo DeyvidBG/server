@@ -25,17 +25,27 @@ router.get('/', (req: Request, res: Response) => {
 })
 
 router.get(
+  '/roomsByTeacherId',
+  verifyToken,
+  verifyRole([Role.Teacher, Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const rooms = await schoolRepository.getRoomsByTeacherId(
+        res.locals.user.id
+      )
+      rooms && res.status(200).json(rooms)
+    }, 'Error getting rooms by teacher id.')
+  }
+)
+
+router.get(
   '/rooms',
   verifyToken,
   verifyRole([Role.Teacher, Role.Principal, Role.Admin]),
   (req: Request, res: Response) => {
     return tryCatchWrapper(async () => {
       const rooms = await schoolRepository.getAllRooms(res.locals.user.id)
-      if (rooms) {
-        res.status(200).json(rooms)
-      } else {
-        res.status(200).json(null)
-      }
+      rooms && res.status(200).json(rooms)
     }, 'Error getting rooms.')
   }
 )

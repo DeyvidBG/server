@@ -24,6 +24,20 @@ router.get(
 )
 
 router.get(
+  '/byTeacherId',
+  verifyToken,
+  verifyRole([Role.Teacher, Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const subjects = await subjectRepository.getSubjectsByTeacherId(
+        res.locals.user.id
+      )
+      res.status(200).json(subjects)
+    }, 'Error getting subjects by teacher id.')
+  }
+)
+
+router.get(
   '/:subjectId',
   validate(subjectIdSchema),
   (req: Request, res: Response) => {

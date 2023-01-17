@@ -13,6 +13,7 @@ export interface ISchoolRepository<K, V extends Identifiable<K>>
   assignTeacher(teacherId: K, principalId: K): Promise<boolean>
   dismissTeacher(teacherId: K): Promise<boolean>
   getAllRooms(principalId: K): Promise<Room[]>
+  getRoomsByTeacherId(teacherId: K): Promise<Room[]>
   createRoom(principalId: K, name: string, capacity: number): Promise<boolean>
   deleteRoom(roomId: K): Promise<boolean>
 }
@@ -145,6 +146,21 @@ class SchoolRepository<K, V extends Identifiable<K>>
       )
       return results
     }, 'Error getting rooms.')
+  }
+
+  async getRoomsByTeacherId(teacherId: K): Promise<Room[]> {
+    return tryCatchWrapper(async () => {
+      const results = await this.handleSQLQuery(
+        `WITH teacher_school AS (
+        SELECT school_id FROM teacher_school_subscriptions WHERE teacher_id = ?
+    )
+    SELECT rooms.id, rooms.name, rooms.capacity
+    FROM rooms 
+    WHERE rooms.school_id IN (SELECT school_id FROM teacher_school)`,
+        [teacherId]
+      )
+      return results
+    }, 'Error getting rooms by teacher id.')
   }
 
   async createRoom(

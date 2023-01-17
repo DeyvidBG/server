@@ -3,6 +3,7 @@ import Subject from './subject'
 import { School } from './school'
 import { Class } from './class'
 import { Room } from './room'
+import { Group } from './group'
 import { Identifiable, IdType, Time, Gender, Role } from './shared-types'
 import {
   AuthenticationError,
@@ -15,7 +16,7 @@ export {
   User,
   Subject,
   School,
-  Class,
+  Group,
   Room,
   Identifiable,
   IdType,

@@ -4,7 +4,9 @@ import { tryCatchWrapper } from '../utils'
 import { BaseRepository } from '.'
 
 export interface ISubjectRepository<K, V extends Identifiable<K>>
-  extends IRepository<K, V> {}
+  extends IRepository<K, V> {
+  getSubjectsByTeacherId(id: K): Promise<V[]>
+}
 
 class SubjectRepository<K, V extends Identifiable<K>>
   extends BaseRepository<K, V>
@@ -42,6 +44,21 @@ class SubjectRepository<K, V extends Identifiable<K>>
 
   async delete(id: K): Promise<boolean> {
     return super.delete(id, SubjectRepository.DELETE_QUERY)
+  }
+
+  async getSubjectsByTeacherId(id: K): Promise<V[]> {
+    return tryCatchWrapper(async () => {
+      const results = await this.handleSQLQuery(
+        `WITH teacher_school AS (
+        SELECT school_id FROM teacher_school_subscriptions WHERE teacher_id = ?
+    )
+    SELECT subjects.id, subjects.name, subjects.description
+    FROM subjects 
+    WHERE subjects.school_id IN (SELECT school_id FROM teacher_school)`,
+        [id]
+      )
+      return results
+    }, 'Error getting subject by teacher id.')
   }
 }
 
