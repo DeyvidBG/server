@@ -6,6 +6,7 @@ export class Class {
     public teacherId: IdType,
     public groupId: IdType,
     public subjectId: IdType,
+    public roomId: IdType,
     public name: string,
     public description: string,
     public date: Date,

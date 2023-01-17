@@ -5,6 +5,7 @@ import { SchoolRepository, UserRepository } from '../dao'
 import { verifyToken, verifyRole } from './../security'
 import { validate } from '../middleware'
 import { schoolSchema } from '../schema'
+import { roomIdSchema, roomSchema } from './../schema/roomSchema'
 
 const router = express.Router()
 
@@ -22,6 +23,22 @@ router.get('/', (req: Request, res: Response) => {
     res.status(200).json(await schoolRepository.getAll())
   }, 'Error getting schools.')
 })
+
+router.get(
+  '/rooms',
+  verifyToken,
+  verifyRole([Role.Teacher, Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const rooms = await schoolRepository.getAllRooms(res.locals.user.id)
+      if (rooms) {
+        res.status(200).json(rooms)
+      } else {
+        res.status(200).json(null)
+      }
+    }, 'Error getting rooms.')
+  }
+)
 
 router.get(
   '/verified',
@@ -120,6 +137,24 @@ router.post('/', validate(schoolSchema), (req: Request, res: Response) => {
   }, 'Error creating school.')
 })
 
+router.post(
+  '/rooms',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  validate(roomSchema),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const data = req.body
+      const created = await schoolRepository.createRoom(
+        res.locals.user.id,
+        data.name,
+        data.capacity
+      )
+      created ? res.status(204).end() : res.status(400).end()
+    }, 'Error creating room.')
+  }
+)
+
 router.put(
   '/verify',
   verifyToken,
@@ -168,6 +203,20 @@ router.delete(
         res.status(400).end()
       }
     })
+  }
+)
+
+router.delete(
+  '/rooms/:roomId',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  validate(roomIdSchema),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const params = req.params
+      const deleted = await schoolRepository.deleteRoom(+params.roomId)
+      deleted ? res.status(204).end() : res.status(400).end()
+    }, 'Error deleting room.')
   }
 )
 

@@ -2,6 +2,7 @@ import { Identifiable } from '../model/shared-types'
 import { IRepository } from './shared-types'
 import { tryCatchWrapper } from '../utils'
 import { BaseRepository } from '.'
+import { Room } from '../model'
 
 export interface ISchoolRepository<K, V extends Identifiable<K>>
   extends IRepository<K, V> {
@@ -11,6 +12,9 @@ export interface ISchoolRepository<K, V extends Identifiable<K>>
   getTeacherStatus(teacherEmail: string, schoolId: K): Promise<any>
   assignTeacher(teacherId: K, principalId: K): Promise<boolean>
   dismissTeacher(teacherId: K): Promise<boolean>
+  getAllRooms(principalId: K): Promise<Room[]>
+  createRoom(principalId: K, name: string, capacity: number): Promise<boolean>
+  deleteRoom(roomId: K): Promise<boolean>
 }
 
 class SchoolRepository<K, V extends Identifiable<K>>
@@ -117,7 +121,7 @@ class SchoolRepository<K, V extends Identifiable<K>>
       VALUES (?, (SELECT id FROM schools WHERE (principal_id = ? OR vice_principal_id = ?)))`,
         [teacherId, principalId, principalId]
       )
-      return result.insertId > 0
+      return result.insertId > -1
     }, 'Error assigning teacher.')
   }
 
@@ -129,6 +133,44 @@ class SchoolRepository<K, V extends Identifiable<K>>
       )
       return result.affectedRows > 0
     }, 'Error dismissing teacher.')
+  }
+
+  async getAllRooms(principalId: K): Promise<Room[]> {
+    return tryCatchWrapper(async () => {
+      const results = await this.handleSQLQuery(
+        `SELECT id, school_id as schoolId, name, capacity
+      FROM rooms 
+      WHERE school_id = (SELECT id FROM schools WHERE (principal_id = ? OR vice_principal_id = ?))`,
+        [principalId, principalId]
+      )
+      return results
+    }, 'Error getting rooms.')
+  }
+
+  async createRoom(
+    principalId: K,
+    name: string,
+    capacity: number
+  ): Promise<boolean> {
+    return tryCatchWrapper(async () => {
+      const result = await this.handleSQLQuery(
+        `INSERT INTO rooms (school_id, name, capacity)
+      VALUES ((SELECT id FROM schools WHERE (principal_id = ? OR vice_principal_id = ?)), ?, ?);
+      `,
+        [principalId, principalId, name, capacity]
+      )
+      return result.insertId > 0
+    }, 'Error creating room.')
+  }
+
+  async deleteRoom(roomId: K): Promise<boolean> {
+    return tryCatchWrapper(async () => {
+      const result = await this.handleSQLQuery(
+        'DELETE FROM rooms WHERE id = ?',
+        [roomId]
+      )
+      return result.affectedRows > 0
+    })
   }
 }
 
