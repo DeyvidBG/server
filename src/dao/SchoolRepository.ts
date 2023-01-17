@@ -9,6 +9,8 @@ export interface ISchoolRepository<K, V extends Identifiable<K>>
   getAllUnverified(): Promise<V[]>
   verifySchool(id: K): Promise<boolean>
   getTeacherStatus(teacherEmail: string, schoolId: K): Promise<any>
+  assignTeacher(teacherId: K, principalId: K): Promise<boolean>
+  dismissTeacher(teacherId: K): Promise<boolean>
 }
 
 class SchoolRepository<K, V extends Identifiable<K>>
@@ -90,7 +92,7 @@ class SchoolRepository<K, V extends Identifiable<K>>
         (SELECT first_name FROM users WHERE id = teacher_school.teacher_id) as firstName,
         (SELECT middle_name FROM users WHERE id = teacher_school.teacher_id) as middleName,
         (SELECT last_name FROM users WHERE id = teacher_school.teacher_id) as lastName,
-        teacher_school.teacher_id,
+        teacher_school.teacher_id as id,
         teacher_school.school_id as schoolId,
         (SELECT name FROM schools WHERE id = teacher_school.school_id) as schoolName,
         CASE 
@@ -106,6 +108,27 @@ class SchoolRepository<K, V extends Identifiable<K>>
       )
       return result[0]
     }, 'Error getting relationship teacher school.')
+  }
+
+  async assignTeacher(teacherId: K, principalId: K): Promise<boolean> {
+    return tryCatchWrapper(async () => {
+      const result = await this.handleSQLQuery(
+        `INSERT INTO teacher_school_subscriptions (teacher_id, school_id)
+      VALUES (?, (SELECT id FROM schools WHERE (principal_id = ? OR vice_principal_id = ?)))`,
+        [teacherId, principalId, principalId]
+      )
+      return result.insertId > 0
+    }, 'Error assigning teacher.')
+  }
+
+  async dismissTeacher(id: K): Promise<boolean> {
+    return tryCatchWrapper(async () => {
+      const result = await this.handleSQLQuery(
+        'DELETE FROM teacher_school_subscriptions WHERE teacher_id = ?',
+        [id]
+      )
+      return result.affectedRows > 0
+    }, 'Error dismissing teacher.')
   }
 }
 

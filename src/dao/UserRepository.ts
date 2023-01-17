@@ -5,8 +5,8 @@ import { BaseRepository } from '.'
 
 export interface IUserRepository<K, V extends Identifiable<K>>
   extends IRepository<K, V> {
-  getByEmail(email: Partial<V>): Promise<V>
-  checkIfEmailExists(email: Partial<V>): Promise<boolean>
+  getByEmail(email: string): Promise<V>
+  checkIfEmailExists(email: string): Promise<boolean>
   updateUsersRole(id: K, role: Role): Promise<boolean>
 }
 
@@ -52,7 +52,7 @@ class UserRepository<K, V extends Identifiable<K>>
 
   // Extended CRUD operations
 
-  async getByEmail(email: Partial<V>): Promise<V> {
+  async getByEmail(email: string): Promise<V> {
     return tryCatchWrapper<V>(async () => {
       const result = await this.handleSQLQuery(
         'SELECT id, first_name AS firstName, middle_name AS middleName, last_name AS lastName, email, password, phone_number AS phoneNumber, birth_date AS birthDate, gender, role FROM users WHERE email = ?',
@@ -62,7 +62,7 @@ class UserRepository<K, V extends Identifiable<K>>
     }, 'Error getting user by email.')
   }
 
-  async checkIfEmailExists(email: Partial<V>): Promise<boolean> {
+  async checkIfEmailExists(email: string): Promise<boolean> {
     return tryCatchWrapper<boolean>(async () => {
       const result = await this.handleSQLQuery(
         'SELECT * FROM users WHERE email = ?',

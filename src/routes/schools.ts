@@ -62,7 +62,14 @@ router.get(
         params.teacherEmail,
         res.locals.user.id
       )
-      res.status(200).json(teacherStatus)
+      if (teacherStatus) {
+        res.status(200).json(teacherStatus)
+      } else {
+        res.status(200).json({
+          ...(await userRepository.getByEmail(params.teacherEmail)),
+          status: 0,
+        })
+      }
     })
   }
 )
@@ -70,11 +77,9 @@ router.get(
 router.post('/', validate(schoolSchema), (req: Request, res: Response) => {
   return tryCatchWrapper(async () => {
     const data = req.body as School
-    const principal = await userRepository.getByEmail(
-      data.principalEmail as Partial<User>
-    )
+    const principal = await userRepository.getByEmail(data.principalEmail)
     const vicePrincipal = await userRepository.getByEmail(
-      data.vicePrincipalEmail as Partial<User>
+      data.vicePrincipalEmail
     )
     if (principal && vicePrincipal) {
       if (principal.role === 1 && vicePrincipal.role === 1) {
@@ -124,6 +129,45 @@ router.put(
       const updated = await schoolRepository.verifySchool(req.body.schoolId)
       updated ? res.status(204).end() : res.status(400).end()
     }, 'Error updating school.')
+  }
+)
+
+router.put(
+  '/assign/:teacherId',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const params = req.params
+      const updated = await schoolRepository.assignTeacher(
+        +params.teacherId,
+        res.locals.user.id
+      )
+      if (updated) {
+        userRepository.updateUsersRole(+params.teacherId, Role.Teacher)
+        res.status(204).end()
+      } else {
+        res.status(400).end()
+      }
+    }, 'Error assigning teacher.')
+  }
+)
+
+router.delete(
+  '/dismiss/:teacherId',
+  verifyToken,
+  verifyRole([Role.Principal, Role.Admin]),
+  (req: Request, res: Response) => {
+    return tryCatchWrapper(async () => {
+      const params = req.params
+      const deleted = await schoolRepository.dismissTeacher(+params.teacherId)
+      if (deleted) {
+        userRepository.updateUsersRole(+params.teacherId, Role.User)
+        res.status(204).end()
+      } else {
+        res.status(400).end()
+      }
+    })
   }
 )
 
